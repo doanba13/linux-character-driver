@@ -1,0 +1,1 @@
+cmd_/home/bastol/Desktop/lab5_1/lab5a1.ko := ld -r  -m elf_x86_64  --build-id=sha1  -T scripts/module.lds -o /home/bastol/Desktop/lab5_1/lab5a1.ko /home/bastol/Desktop/lab5_1/lab5a1.o /home/bastol/Desktop/lab5_1/lab5a1.mod.o;  true
