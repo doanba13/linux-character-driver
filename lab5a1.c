@@ -17,10 +17,11 @@
 static struct cdev *lab51_cdev;
 unsigned open_cnt = 0;
 
-char *buf_tmp;
+const char *buf_tmp[MEM_SIZE];
 int32_t *kernel_buf;
 
-char fromBase[10], toBase[10], data[20];
+static int data, toBase, fromBase;
+
 
 
 static int vchar_driver_open(struct inode *inode, struct file *flip);
@@ -86,28 +87,22 @@ static ssize_t vchar_driver_write(struct file *filp, const char __user *user_buf
 	copy_from_user(buf_tmp, user_buf, len);
 
 	printk(KERN_INFO "%s", *buf_tmp);
-	sscanf(*buf_tmp, "%s,%s,%s", data, fromBase, toBase);
+	sscanf(*buf_tmp, "%d %d %d", &data, &fromBase, &toBase);
 
-	printk(KERN_INFO "data = %s, from %s to %s\n", data, fromBase, toBase);
+	printk(KERN_INFO "data = %d, from %d to %d\n", data, fromBase, toBase);
 
-	if (strcmp(fromBase,"Binary") == 0 && strcmp(toBase,"Octal")) {
-		decimal = BinToDec((int)data);
+	if (fromBase == 2 && toBase == 8) {
+		decimal = BinToDec(data);
 		DecToOct(decimal);
-	} else if (strcmp(fromBase,"Binary") == 0 && strcmp(toBase,"Heximal")){
-		decimal = BinToDec((int)data);
+	} else if (fromBase == 2 && toBase == 16){
+		decimal = BinToDec(data);
 		DecToHex(decimal);
-	} else if (strcmp(fromBase,"Octal") == 0 && strcmp(toBase,"Binary")){
-		decimal = OctalToDec((int)data);
+	} else if (fromBase == 8 && toBase == 2){
+		decimal = OctalToDec(data);
 		DecToBinary(decimal);
-	} else if (strcmp(fromBase,"Octal") == 0 && strcmp(toBase,"Heximal")){
-		decimal = OctalToDec((int)data);
+	} else if (fromBase == 8 && toBase == 16){
+		decimal = OctalToDec(data);
 		DecToHex(decimal);
-	} else if (strcmp(fromBase,"Heximal") == 0 && strcmp(toBase,"Binary")){
-		decimal = HexToDec(data);
-		DecToBinary(decimal);
-	} else if (strcmp(fromBase,"Heximal") == 0 && strcmp(toBase,"Octal")){
-		decimal = HexToDec(data);
-		DecToOct(decimal);
 	}
 
 	printk(KERN_INFO "Write\n");
@@ -285,7 +280,7 @@ static int __init char_driver_init(void)
     
 	
 	kernel_buf 		= kmalloc(MEM_SIZE, GFP_KERNEL);
-	buf_tmp			= kmalloc(MEM_SIZE, GFP_KERNEL);
+	//buf_tmp			= kmalloc(MEM_SIZE, GFP_KERNEL);
 
     lab51_cdev = cdev_alloc();				
 	cdev_init(lab51_cdev, &fops); 			
